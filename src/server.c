@@ -787,12 +787,37 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
          *    +------+----------+----------+
          *
          */
-
+#ifdef TAP_BOOSTER
+        /*
+         * The new TapBooster Shadowsocks TCP Relay Header:
+         *
+         *    +-------+--------+-----+----------+------+----------+----------+
+         *    | TOKEN | REGION | CMD | ICMP.SEQ | ATYP | DST.ADDR | DST.PORT |
+         *    +-------+--------+-----+----------+------+----------+----------+
+         *    |  16   |    1   |  1  |    1     |  1   | Variable |    2     |
+         *    +-------+--------+-----+----------+------+----------+----------+
+         *
+         */
+#endif
         int offset     = 0;
         int need_query = 0;
-        char atyp      = server->buf->data[offset++];
-        char host[255] = { 0 };
-        uint16_t port  = 0;
+#ifdef TAP_BOOSTER
+        // token
+        static uint8_t TOKEN_LEN = 16; // token length
+        char token[TOKEN_LEN] = {0};
+        memcpy(token, server->buf->data + offset, TOKEN_LEN]); // copy token
+        offset += TOKEN_LEN;
+
+        // TODO: check the token is valid
+
+        // Region
+        char region = server->buf->data[offset++];
+        char cmd = server->buf->data[offset++];
+        char icmp_seq = server->buf->data[offset++];
+#endif
+        char atyp = server->buf->data[offset++];      // NickYang: address type
+        char host[255] = {0};                         // NickYang: 255 length string, host name or ip address
+        uint16_t port  = 0;                           // NickYang: port uint16_t
         struct addrinfo info;
         struct sockaddr_storage storage;
         memset(&info, 0, sizeof(struct addrinfo));
@@ -864,7 +889,7 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                     stop_server(EV_A_ server);
                     return;
                 }
-                need_query = 1;
+                need_query = 1; // NickYang:需要查询域名
             }
         } else if ((atyp & ADDRTYPE_MASK) == 4) {
             // IP V6
@@ -917,6 +942,7 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
         }
 
         if (!need_query) {
+            // NickYang:不需要查询域名，直接连接远端服务器(游戏服务器)
             remote_t *remote = connect_to_remote(EV_A_ & info, server);
 
             if (remote == NULL) {
@@ -943,6 +969,7 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                 ev_io_start(EV_A_ & remote->send_ctx->io);
             }
         } else {
+            // NickYang:需要查询域名，进行domain name resolve
             ev_io_stop(EV_A_ & server_recv_ctx->io);
 
             query_t *query = ss_malloc(sizeof(query_t));
