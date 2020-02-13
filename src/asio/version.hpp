@@ -1,0 +1,5 @@
+#pragma once
+
+#define HTTP_VERSION_MAJOR 0
+#define HTTP_VERSION_MINOR 0
+#define HTTP_VERSION_PATCH 1

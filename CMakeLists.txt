@@ -9,6 +9,7 @@ set(PROJECT_ISSUES_URL "https://github.com/shadowsocks/shadowsocks-libev")
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 #set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/out)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -24,6 +25,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif ()
+
 # Detect linux
 if (UNIX AND NOT APPLE)
     set(LINUX TRUE)
@@ -65,6 +67,12 @@ include_directories(libcork/include)
 include_directories(libipset/include)
 include_directories(libbloom/murmur2)
 include_directories(libbloom)
+
+# Find boost
+find_package(Boost 1.72.0 REQUIRED)
+
+# asio standalone
+add_definitions(-DASIO_STANDALONE)
 
 set(LIBCORK_SOURCE
         libcork/src/libcork/cli/commands.c

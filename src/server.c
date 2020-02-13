@@ -809,11 +809,47 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
         offset += TOKEN_LEN;
 
         // TODO: check the token is valid
+        // redis check
 
         // Region
         char region = server->buf->data[offset++];
         char cmd = server->buf->data[offset++];
-        char icmp_seq = server->buf->data[offset++];
+        if ((cmd & 0xF) == 1)
+        {
+            // connect
+        }
+        else if ((cmd & 0xF) == 3)
+        {
+            // another connection
+            // assign UDP port
+            // add a new stage STAGE_UDP_ASSOCIATED
+            // server->stage = STAGE_UDP_ASSOCIATED;
+            // reply UDP port
+            // reply protocol is TCP/ICMP Reply Packet
+            // UDP port assignment rules
+
+
+            // then UDP use the region field to select anycast router
+            // Router jump next router
+
+            // dual channels
+        }
+        else if ((cmd & 0xF) == 4)
+        {
+            // next msg header is ICMP.SEQ
+            // if((cmd & 0xF) == 4)
+            // {
+                    // ping remote server
+                    // reply TCP/ICMP Reply Packet
+            // }
+        }
+        else
+        {
+            LOGE("error cmd type, type=%c", cmd);
+            return;
+        }
+
+        char icmp_seq = server->buf->data[offset++]; // TODO: ICMP ping
 #endif
         char atyp = server->buf->data[offset++];      // NickYang: address type
         char host[255] = {0};                         // NickYang: 255 length string, host name or ip address

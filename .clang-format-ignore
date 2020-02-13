@@ -1,0 +1,3 @@
+src/*.h
+src/*.c
+boost/*

@@ -5,6 +5,7 @@ else ()
     option(WITH_SS_REDIR "Build ss-redir" OFF)
 endif ()
 
+include_directories(asio)
 
 set(SS_SNI_SOURCE
         http.c
