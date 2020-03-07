@@ -50,23 +50,23 @@ add_definitions(-DHAVE_CONFIG_H)
 
 # pkg-config
 configure_file(
-        ${CMAKE_SOURCE_DIR}/cmake/shadowsocks-libev.pc.cmake
-        ${CMAKE_BINARY_DIR}/pkgconfig/shadowsocks-libev.pc
-        @ONLY
-)
+    ${CMAKE_SOURCE_DIR}/cmake/shadowsocks-libev.pc.cmake
+    ${CMAKE_BINARY_DIR}/pkgconfig/shadowsocks-libev.pc
+    @ONLY
+    )
 install(FILES
-        ${CMAKE_BINARY_DIR}/pkgconfig/shadowsocks-libev.pc
-        DESTINATION lib/pkgconfig
-        )
+    ${CMAKE_BINARY_DIR}/pkgconfig/shadowsocks-libev.pc
+    DESTINATION lib/pkgconfig
+    )
 
 if (WITH_EMBEDDED_SRC)
-# We need libcork,libipset headers
-include_directories(libcork/include)
-include_directories(libipset/include)
-include_directories(libbloom/murmur2)
-include_directories(libbloom)
+    # We need libcork,libipset headers
+    include_directories(libcork/include)
+    include_directories(libipset/include)
+    include_directories(libbloom/murmur2)
+    include_directories(libbloom)
 
-set(LIBCORK_SOURCE
+    set(LIBCORK_SOURCE
         libcork/src/libcork/cli/commands.c
         libcork/src/libcork/core/allocator.c
         libcork/src/libcork/core/error.c
@@ -95,16 +95,17 @@ set(LIBCORK_SOURCE
         libcork/src/libcork/pthreads/thread.c
         )
 
-if (WITH_STATIC)
-add_library(cork STATIC ${LIBCORK_SOURCE})
-target_compile_definitions(cork PUBLIC -DCORK_API=CORK_LOCAL)
-endif ()
+    if (WITH_STATIC)
+        add_library(cork STATIC ${LIBCORK_SOURCE})
+        target_compile_definitions(cork PUBLIC -DCORK_API=CORK_LOCAL)
+    else ()
 
-add_library(cork-shared SHARED ${LIBCORK_SOURCE})
-target_compile_definitions(cork-shared PUBLIC -DCORK_API=CORK_EXPORT)
-set_target_properties(cork-shared PROPERTIES OUTPUT_NAME cork)
+        add_library(cork-shared SHARED ${LIBCORK_SOURCE})
+        target_compile_definitions(cork-shared PUBLIC -DCORK_API=CORK_EXPORT)
+        set_target_properties(cork-shared PROPERTIES OUTPUT_NAME cork)
+    endif()
 
-set(LIBIPSET_SOURCE
+    set(LIBIPSET_SOURCE
         libipset/src/libipset/general.c
         libipset/src/libipset/bdd/assignments.c
         libipset/src/libipset/bdd/basics.c
@@ -126,26 +127,28 @@ set(LIBIPSET_SOURCE
         libipset/src/libipset/set/storage.c
         )
 
-if (WITH_STATIC)
-add_library(ipset STATIC ${LIBIPSET_SOURCE})
-endif ()
+    if (WITH_STATIC)
+        add_library(ipset STATIC ${LIBIPSET_SOURCE})
+    else()
 
-add_library(ipset-shared SHARED ${LIBIPSET_SOURCE})
-set_target_properties(ipset-shared PROPERTIES OUTPUT_NAME ipset)
+        add_library(ipset-shared SHARED ${LIBIPSET_SOURCE})
+        set_target_properties(ipset-shared PROPERTIES OUTPUT_NAME ipset)
+    endif ()
 
-set(LIBBLOOM_SOURCE
+    set(LIBBLOOM_SOURCE
         libbloom/bloom.c
         libbloom/murmur2/MurmurHash2.c
         )
 
-if (WITH_STATIC)
-add_library(bloom STATIC ${LIBBLOOM_SOURCE})
-target_link_libraries(ipset cork bloom)
-endif ()
+    if (WITH_STATIC)
+        add_library(bloom STATIC ${LIBBLOOM_SOURCE})
+        target_link_libraries(ipset cork bloom)
+    else ()
 
-add_library(bloom-shared SHARED ${LIBBLOOM_SOURCE})
-target_link_libraries(ipset-shared cork-shared bloom-shared)
-set_target_properties(bloom-shared PROPERTIES OUTPUT_NAME bloom)
+        add_library(bloom-shared SHARED ${LIBBLOOM_SOURCE})
+        target_link_libraries(ipset-shared cork-shared bloom-shared)
+        set_target_properties(bloom-shared PROPERTIES OUTPUT_NAME bloom)
+    endif ()
 endif ()
 
 add_subdirectory(src)
