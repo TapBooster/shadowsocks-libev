@@ -43,19 +43,19 @@ if (NOT WITH_EMBEDDED_SRC)
 endif ()
 
 # Run platform tests
-include(${CMAKE_SOURCE_DIR}/cmake/configure.cmake)
-configure_file(${CMAKE_SOURCE_DIR}/cmake/config.h.cmake ${CMAKE_BINARY_DIR}/src/config.h)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/configure.cmake)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.cmake ${CMAKE_BINARY_DIR}/src/config.h)
 add_definitions(-I$(CMAKE_BINARY_DIR)/src)
 add_definitions(-DHAVE_CONFIG_H)
 
 # pkg-config
 configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/shadowsocks-libev.pc.cmake
-    ${CMAKE_BINARY_DIR}/pkgconfig/shadowsocks-libev.pc
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/shadowsocks-libev.pc.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/pkgconfig/shadowsocks-libev.pc
     @ONLY
     )
 install(FILES
-    ${CMAKE_BINARY_DIR}/pkgconfig/shadowsocks-libev.pc
+    ${CMAKE_CURRENT_SOURCE_DIR}/pkgconfig/shadowsocks-libev.pc
     DESTINATION lib/pkgconfig
     )
 
