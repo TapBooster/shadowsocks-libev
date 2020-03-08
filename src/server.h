@@ -23,6 +23,10 @@
 #ifndef _SERVER_H
 #define _SERVER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
 #include <time.h>
 #include <libcork/ds.h>
 
@@ -36,26 +40,28 @@
 #include "winsock.h"
 #endif
 
+#include "netutils.h"
 #include "crypto.h"
 #include "jconf.h"
 #include "resolv.h"
-#include "netutils.h"
 
 #include "common.h"
 
-typedef struct listen_ctx {
+typedef struct listen_ctx
+{
     ev_io io;
     int fd;
     int timeout;
-    char *iface;
-    struct ev_loop *loop;
+    char* iface;
+    struct ev_loop* loop;
 } listen_ctx_t;
 
-typedef struct server_ctx {
+typedef struct server_ctx
+{
     ev_io io;
     ev_timer watcher;
     int connected;
-    struct server *server;
+    struct server* server;
 } server_ctx_t;
 
 #ifdef USE_NFCONNTRACK_TOS
@@ -63,8 +69,9 @@ typedef struct server_ctx {
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack_tcp.h>
 
-struct dscptracker {
-    struct nf_conntrack *ct;
+struct dscptracker
+{
+    struct nf_conntrack* ct;
     long unsigned int mark;
     unsigned int dscp;
     unsigned int packet_count;
@@ -74,49 +81,57 @@ struct dscptracker {
 
 struct query;
 
-typedef struct server {
+typedef struct server
+{
     int fd;
     int stage;
     int frag;
 
-    buffer_t *buf;
+    buffer_t* buf;
 
-    cipher_ctx_t *e_ctx;
-    cipher_ctx_t *d_ctx;
-    struct server_ctx *recv_ctx;
-    struct server_ctx *send_ctx;
-    struct listen_ctx *listen_ctx;
-    struct remote *remote;
+    cipher_ctx_t* e_ctx;
+    cipher_ctx_t* d_ctx;
+    struct server_ctx* recv_ctx;
+    struct server_ctx* send_ctx;
+    struct listen_ctx* listen_ctx;
+    struct remote* remote;
 
-    struct query *query;
+    struct query* query;
 
     struct cork_dllist_item entries;
 #ifdef USE_NFCONNTRACK_TOS
-    struct dscptracker *tracker;
+    struct dscptracker* tracker;
 #endif
 } server_t;
 
-typedef struct query {
-    server_t *server;
+typedef struct query
+{
+    server_t* server;
     char hostname[MAX_HOSTNAME_LEN];
 } query_t;
 
-typedef struct remote_ctx {
+typedef struct remote_ctx
+{
     ev_io io;
     int connected;
-    struct remote *remote;
+    struct remote* remote;
 } remote_ctx_t;
 
-typedef struct remote {
+typedef struct remote
+{
     int fd;
 #ifdef TCP_FASTOPEN_WINSOCK
     OVERLAPPED olap;
     int connect_ex_done;
 #endif
-    buffer_t *buf;
-    struct remote_ctx *recv_ctx;
-    struct remote_ctx *send_ctx;
-    struct server *server;
+    buffer_t* buf;
+    struct remote_ctx* recv_ctx;
+    struct remote_ctx* send_ctx;
+    struct server* server;
 } remote_t;
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif // _SERVER_H

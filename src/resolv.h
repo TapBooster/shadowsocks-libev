@@ -26,6 +26,10 @@
 #ifndef RESOLV_H
 #define RESOLV_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -37,10 +41,13 @@
 
 struct resolv_query;
 
-int resolv_init(struct ev_loop *, char *, int);
-void resolv_start(const char *hostname, uint16_t port,
-                  void (*client_cb)(struct sockaddr *, void *),
-                  void (*free_cb)(void *), void *data);
-void resolv_shutdown(struct ev_loop *);
+int resolv_init(struct ev_loop*, char*, int);
+void resolv_start(const char* hostname, uint16_t port, void (*client_cb)(struct sockaddr*, void*),
+    void (*free_cb)(void*), void* data);
+void resolv_shutdown(struct ev_loop*);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif

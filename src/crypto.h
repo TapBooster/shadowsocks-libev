@@ -23,6 +23,10 @@
 #ifndef _CRYPTO_H
 #define _CRYPTO_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
 #ifndef __MINGW32__
 #include <sys/socket.h>
 #endif
@@ -61,9 +65,9 @@ typedef mbedtls_md_info_t digest_type_t;
 
 #define ADDRTYPE_MASK 0xF
 
-#define CRYPTO_ERROR     -2
+#define CRYPTO_ERROR -2
 #define CRYPTO_NEED_MORE -1
-#define CRYPTO_OK         0
+#define CRYPTO_OK 0
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
@@ -87,74 +91,78 @@ typedef mbedtls_md_info_t digest_type_t;
 #define BF_ERROR_RATE_FOR_CLIENT 1e-15
 #endif
 
-typedef struct buffer {
+typedef struct buffer
+{
     size_t idx;
     size_t len;
     size_t capacity;
-    char   *data;
+    char* data;
 } buffer_t;
 
-typedef struct {
+typedef struct
+{
     int method;
     int skey;
-    cipher_kt_t *info;
+    cipher_kt_t* info;
     size_t nonce_len;
     size_t key_len;
     size_t tag_len;
     uint8_t key[MAX_KEY_LENGTH];
 } cipher_t;
 
-typedef struct {
+typedef struct
+{
     uint32_t init;
     uint64_t counter;
-    cipher_evp_t *evp;
-    aes256gcm_ctx *aes256gcm_ctx;
-    cipher_t *cipher;
-    buffer_t *chunk;
+    cipher_evp_t* evp;
+    aes256gcm_ctx* aes256gcm_ctx;
+    cipher_t* cipher;
+    buffer_t* chunk;
     uint8_t salt[MAX_KEY_LENGTH];
     uint8_t skey[MAX_KEY_LENGTH];
     uint8_t nonce[MAX_NONCE_LENGTH];
 } cipher_ctx_t;
 
-typedef struct crypto {
-    cipher_t *cipher;
+typedef struct crypto
+{
+    cipher_t* cipher;
 
-    int(*const encrypt_all) (buffer_t *, cipher_t *, size_t);
-    int(*const decrypt_all) (buffer_t *, cipher_t *, size_t);
-    int(*const encrypt) (buffer_t *, cipher_ctx_t *, size_t);
-    int(*const decrypt) (buffer_t *, cipher_ctx_t *, size_t);
+    int (*const encrypt_all)(buffer_t*, cipher_t*, size_t);
+    int (*const decrypt_all)(buffer_t*, cipher_t*, size_t);
+    int (*const encrypt)(buffer_t*, cipher_ctx_t*, size_t);
+    int (*const decrypt)(buffer_t*, cipher_ctx_t*, size_t);
 
-    void(*const ctx_init) (cipher_t *, cipher_ctx_t *, int);
-    void(*const ctx_release) (cipher_ctx_t *);
+    void (*const ctx_init)(cipher_t*, cipher_ctx_t*, int);
+    void (*const ctx_release)(cipher_ctx_t*);
 } crypto_t;
 
-int balloc(buffer_t *, size_t);
-int brealloc(buffer_t *, size_t, size_t);
-int bprepend(buffer_t *, buffer_t *, size_t);
-void bfree(buffer_t *);
-int rand_bytes(void *, int);
+int balloc(buffer_t*, size_t);
+int brealloc(buffer_t*, size_t, size_t);
+int bprepend(buffer_t*, buffer_t*, size_t);
+void bfree(buffer_t*);
+int rand_bytes(void*, int);
 
-crypto_t *crypto_init(const char *, const char *, const char *);
-unsigned char *crypto_md5(const unsigned char *, size_t, unsigned char *);
+crypto_t* crypto_init(const char*, const char*, const char*);
+unsigned char* crypto_md5(const unsigned char*, size_t, unsigned char*);
 
-int crypto_derive_key(const char *, uint8_t *, size_t);
-int crypto_parse_key(const char *, uint8_t *, size_t);
-int crypto_hkdf(const mbedtls_md_info_t *md, const unsigned char *salt,
-                int salt_len, const unsigned char *ikm, int ikm_len,
-                const unsigned char *info, int info_len, unsigned char *okm,
-                int okm_len);
-int crypto_hkdf_extract(const mbedtls_md_info_t *md, const unsigned char *salt,
-                        int salt_len, const unsigned char *ikm, int ikm_len,
-                        unsigned char *prk);
-int crypto_hkdf_expand(const mbedtls_md_info_t *md, const unsigned char *prk,
-                       int prk_len, const unsigned char *info, int info_len,
-                       unsigned char *okm, int okm_len);
+int crypto_derive_key(const char*, uint8_t*, size_t);
+int crypto_parse_key(const char*, uint8_t*, size_t);
+int crypto_hkdf(const mbedtls_md_info_t* md, const unsigned char* salt, int salt_len, const unsigned char* ikm,
+    int ikm_len, const unsigned char* info, int info_len, unsigned char* okm, int okm_len);
+int crypto_hkdf_extract(const mbedtls_md_info_t* md, const unsigned char* salt, int salt_len, const unsigned char* ikm,
+    int ikm_len, unsigned char* prk);
+int crypto_hkdf_expand(const mbedtls_md_info_t* md, const unsigned char* prk, int prk_len, const unsigned char* info,
+    int info_len, unsigned char* okm, int okm_len);
 #ifdef SS_DEBUG
-void dump(char *tag, char *text, int len);
+void dump(char* tag, char* text, int len);
 #endif
 
-extern struct cache *nonce_cache;
-extern const char *supported_stream_ciphers[];
-extern const char *supported_aead_ciphers[];
+extern struct cache* nonce_cache;
+extern const char* supported_stream_ciphers[];
+extern const char* supported_aead_ciphers[];
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif // _CRYPTO_H

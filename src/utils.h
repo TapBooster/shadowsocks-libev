@@ -23,6 +23,10 @@
 #ifndef _UTILS_H
 #define _UTILS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -37,54 +41,61 @@
 #include <android/log.h>
 #define USE_TTY()
 #define USE_SYSLOG(ident, _cond)
-#define LOGI(...)                                                \
-    ((void)__android_log_print(ANDROID_LOG_DEBUG, "shadowsocks", \
-                               __VA_ARGS__))
-#define LOGE(...)                                                \
-    ((void)__android_log_print(ANDROID_LOG_ERROR, "shadowsocks", \
-                               __VA_ARGS__))
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, "shadowsocks", __VA_ARGS__))
+#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "shadowsocks", __VA_ARGS__))
 
 #else // not __ANDROID__
 
-#define STR(x) # x
+#define STR(x) #x
 #define TOSTR(x) STR(x)
 
 #ifdef LIB_ONLY
 
-extern FILE *logfile;
+extern FILE* logfile;
 #define TIME_FORMAT "%Y-%m-%d %H:%M:%S"
 #define USE_TTY()
 #define USE_SYSLOG(ident, _cond)
-#define USE_LOGFILE(ident)                                     \
-    do {                                                       \
-        if (ident != NULL) { logfile = fopen(ident, "w+"); } } \
-    while (0)
+#define USE_LOGFILE(ident)                                                                                             \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (ident != NULL)                                                                                             \
+        {                                                                                                              \
+            logfile = fopen(ident, "w+");                                                                              \
+        }                                                                                                              \
+    } while (0)
 
-#define CLOSE_LOGFILE                               \
-    do {                                            \
-        if (logfile != NULL) { fclose(logfile); } } \
-    while (0)
-#define LOGI(format, ...)                                                        \
-    do {                                                                         \
-        if (logfile != NULL) {                                                   \
-            time_t now = time(NULL);                                             \
-            char timestr[20];                                                    \
-            strftime(timestr, 20, TIME_FORMAT, localtime(&now));                 \
-            fprintf(logfile, " %s INFO: " format "\n", timestr, ## __VA_ARGS__); \
-            fflush(logfile); }                                                   \
-    }                                                                            \
-    while (0)
-#define LOGE(format, ...)                                        \
-    do {                                                         \
-        if (logfile != NULL) {                                   \
-            time_t now = time(NULL);                             \
-            char timestr[20];                                    \
-            strftime(timestr, 20, TIME_FORMAT, localtime(&now)); \
-            fprintf(logfile, " %s ERROR: " format "\n", timestr, \
-                    ## __VA_ARGS__);                             \
-            fflush(logfile); }                                   \
-    }                                                            \
-    while (0)
+#define CLOSE_LOGFILE                                                                                                  \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (logfile != NULL)                                                                                           \
+        {                                                                                                              \
+            fclose(logfile);                                                                                           \
+        }                                                                                                              \
+    } while (0)
+#define LOGI(format, ...)                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (logfile != NULL)                                                                                           \
+        {                                                                                                              \
+            time_t now = time(NULL);                                                                                   \
+            char timestr[20];                                                                                          \
+            strftime(timestr, 20, TIME_FORMAT, localtime(&now));                                                       \
+            fprintf(logfile, " %s INFO: " format "\n", timestr, ##__VA_ARGS__);                                        \
+            fflush(logfile);                                                                                           \
+        }                                                                                                              \
+    } while (0)
+#define LOGE(format, ...)                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (logfile != NULL)                                                                                           \
+        {                                                                                                              \
+            time_t now = time(NULL);                                                                                   \
+            char timestr[20];                                                                                          \
+            strftime(timestr, 20, TIME_FORMAT, localtime(&now));                                                       \
+            fprintf(logfile, " %s ERROR: " format "\n", timestr, ##__VA_ARGS__);                                       \
+            fflush(logfile);                                                                                           \
+        }                                                                                                              \
+    } while (0)
 
 #else // not LIB_ONLY
 
@@ -94,31 +105,31 @@ extern FILE *logfile;
 #define USE_SYSLOG(ident, _cond)
 #define USE_LOGFILE(ident)
 #define TIME_FORMAT "%Y-%m-%d %H:%M:%S"
-#define LOGI(format, ...)                                    \
-    do {                                                     \
-        time_t now = time(NULL);                             \
-        char timestr[20];                                    \
-        strftime(timestr, 20, TIME_FORMAT, localtime(&now)); \
-        ss_color_info();                                     \
-        fprintf(stdout, " %s INFO: ", timestr);              \
-        ss_color_reset();                                    \
-        fprintf(stdout, format "\n", ## __VA_ARGS__);        \
-        fflush(stdout);                                      \
-    }                                                        \
-    while (0)
+#define LOGI(format, ...)                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        time_t now = time(NULL);                                                                                       \
+        char timestr[20];                                                                                              \
+        strftime(timestr, 20, TIME_FORMAT, localtime(&now));                                                           \
+        ss_color_info();                                                                                               \
+        fprintf(stdout, " %s INFO: ", timestr);                                                                        \
+        ss_color_reset();                                                                                              \
+        fprintf(stdout, format "\n", ##__VA_ARGS__);                                                                   \
+        fflush(stdout);                                                                                                \
+    } while (0)
 
-#define LOGE(format, ...)                                     \
-    do {                                                      \
-        time_t now = time(NULL);                              \
-        char timestr[20];                                     \
-        strftime(timestr, 20, TIME_FORMAT, localtime(&now));  \
-        ss_color_error();                                     \
-        fprintf(stderr, " %s ERROR: ", timestr);              \
-        ss_color_reset();                                     \
-        fprintf(stderr, format "\n", ## __VA_ARGS__);         \
-        fflush(stderr);                                       \
-    }                                                         \
-    while (0)
+#define LOGE(format, ...)                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        time_t now = time(NULL);                                                                                       \
+        char timestr[20];                                                                                              \
+        strftime(timestr, 20, TIME_FORMAT, localtime(&now));                                                           \
+        ss_color_error();                                                                                              \
+        fprintf(stderr, " %s ERROR: ", timestr);                                                                       \
+        ss_color_reset();                                                                                              \
+        fprintf(stderr, format "\n", ##__VA_ARGS__);                                                                   \
+        fflush(stderr);                                                                                                \
+    } while (0)
 
 #else // not __MINGW32__
 
@@ -129,61 +140,74 @@ extern int use_syslog;
 #define HAS_SYSLOG
 #define TIME_FORMAT "%F %T"
 
-#define USE_TTY()                        \
-    do {                                 \
-        use_tty = isatty(STDERR_FILENO); \
+#define USE_TTY()                                                                                                      \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        use_tty = isatty(STDERR_FILENO);                                                                               \
     } while (0)
 
-#define USE_SYSLOG(_ident, _cond)                               \
-    do {                                                        \
-        if (!use_syslog && (_cond)) {                           \
-            use_syslog = 1;                                     \
-        }                                                       \
-        if (use_syslog) {                                       \
-            openlog((_ident), LOG_CONS | LOG_PID, LOG_DAEMON);  \
-        }                                                       \
+#define USE_SYSLOG(_ident, _cond)                                                                                      \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (!use_syslog && (_cond))                                                                                    \
+        {                                                                                                              \
+            use_syslog = 1;                                                                                            \
+        }                                                                                                              \
+        if (use_syslog)                                                                                                \
+        {                                                                                                              \
+            openlog((_ident), LOG_CONS | LOG_PID, LOG_DAEMON);                                                         \
+        }                                                                                                              \
     } while (0)
 
-#define LOGI(format, ...)                                                        \
-    do {                                                                         \
-        if (use_syslog) {                                                        \
-            syslog(LOG_INFO, format, ## __VA_ARGS__);                            \
-        } else {                                                                 \
-            time_t now = time(NULL);                                             \
-            char timestr[20];                                                    \
-            strftime(timestr, 20, TIME_FORMAT, localtime(&now));                 \
-            if (use_tty) {                                                       \
-                fprintf(stdout, "\e[01;32m %s INFO: \e[0m" format "\n", timestr, \
-                        ## __VA_ARGS__);                                         \
-                fflush(stdout);                                                  \
-            } else {                                                             \
-                fprintf(stdout, " %s INFO: " format "\n", timestr,               \
-                        ## __VA_ARGS__);                                         \
-                fflush(stdout);                                                  \
-            }                                                                    \
-        }                                                                        \
-    }                                                                            \
-    while (0)
+#define LOGI(format, ...)                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (use_syslog)                                                                                                \
+        {                                                                                                              \
+            syslog(LOG_INFO, format, ##__VA_ARGS__);                                                                   \
+        }                                                                                                              \
+        else                                                                                                           \
+        {                                                                                                              \
+            time_t now = time(NULL);                                                                                   \
+            char timestr[20];                                                                                          \
+            strftime(timestr, 20, TIME_FORMAT, localtime(&now));                                                       \
+            if (use_tty)                                                                                               \
+            {                                                                                                          \
+                fprintf(stdout, "\e[01;32m %s INFO: \e[0m" format "\n", timestr, ##__VA_ARGS__);                       \
+                fflush(stdout);                                                                                        \
+            }                                                                                                          \
+            else                                                                                                       \
+            {                                                                                                          \
+                fprintf(stdout, " %s INFO: " format "\n", timestr, ##__VA_ARGS__);                                     \
+                fflush(stdout);                                                                                        \
+            }                                                                                                          \
+        }                                                                                                              \
+    } while (0)
 
-#define LOGE(format, ...)                                                         \
-    do {                                                                          \
-        if (use_syslog) {                                                         \
-            syslog(LOG_ERR, format, ## __VA_ARGS__);                              \
-        } else {                                                                  \
-            time_t now = time(NULL);                                              \
-            char timestr[20];                                                     \
-            strftime(timestr, 20, TIME_FORMAT, localtime(&now));                  \
-            if (use_tty) {                                                        \
-                fprintf(stderr, "\e[01;35m %s ERROR: \e[0m" format "\n", timestr, \
-                        ## __VA_ARGS__);                                          \
-                fflush(stderr);                                                   \
-            } else {                                                              \
-                fprintf(stderr, " %s ERROR: " format "\n", timestr,               \
-                        ## __VA_ARGS__);                                          \
-                fflush(stderr);                                                   \
-            }                                                                     \
-        } }                                                                       \
-    while (0)
+#define LOGE(format, ...)                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (use_syslog)                                                                                                \
+        {                                                                                                              \
+            syslog(LOG_ERR, format, ##__VA_ARGS__);                                                                    \
+        }                                                                                                              \
+        else                                                                                                           \
+        {                                                                                                              \
+            time_t now = time(NULL);                                                                                   \
+            char timestr[20];                                                                                          \
+            strftime(timestr, 20, TIME_FORMAT, localtime(&now));                                                       \
+            if (use_tty)                                                                                               \
+            {                                                                                                          \
+                fprintf(stderr, "\e[01;35m %s ERROR: \e[0m" format "\n", timestr, ##__VA_ARGS__);                      \
+                fflush(stderr);                                                                                        \
+            }                                                                                                          \
+            else                                                                                                       \
+            {                                                                                                          \
+                fprintf(stderr, " %s ERROR: " format "\n", timestr, ##__VA_ARGS__);                                    \
+                fflush(stderr);                                                                                        \
+            }                                                                                                          \
+        }                                                                                                              \
+    } while (0)
 
 #endif // if __MINGW32__
 
@@ -208,47 +232,51 @@ extern int use_syslog;
 #define ERROR(s) ss_error(s)
 
 // Implemented in winsock.c
-void ss_error(const char *s);
+void ss_error(const char* s);
 void ss_color_info(void);
 void ss_color_error(void);
 void ss_color_reset(void);
 #else
-void ERROR(const char *s);
+void ERROR(const char* s);
 #endif
 
-char *ss_itoa(int i);
-int ss_isnumeric(const char *s);
-int run_as(const char *user);
-void FATAL(const char *msg);
+char* ss_itoa(int i);
+int ss_isnumeric(const char* s);
+int run_as(const char* user);
+void FATAL(const char* msg);
 void usage(void);
-void daemonize(const char *path);
-char *ss_strndup(const char *s, size_t n);
+void daemonize(const char* path);
+char* ss_strndup(const char* s, size_t n);
 #ifdef HAVE_SETRLIMIT
 int set_nofile(int nofile);
 #endif
 
-void *ss_malloc(size_t size);
-void *ss_aligned_malloc(size_t size);
-void *ss_realloc(void *ptr, size_t new_size);
+void* ss_malloc(size_t size);
+void* ss_aligned_malloc(size_t size);
+void* ss_realloc(void* ptr, size_t new_size);
 
-#define ss_free(ptr) \
-    { \
-        free(ptr); \
-        ptr = NULL; \
+#define ss_free(ptr)                                                                                                   \
+    {                                                                                                                  \
+        free(ptr);                                                                                                     \
+        ptr = NULL;                                                                                                    \
     }
 
 #ifdef __MINGW32__
-#define ss_aligned_free(ptr) \
-    { \
-        _aligned_free(ptr); \
-        ptr = NULL; \
+#define ss_aligned_free(ptr)                                                                                           \
+    {                                                                                                                  \
+        _aligned_free(ptr);                                                                                            \
+        ptr = NULL;                                                                                                    \
     }
 #else
 #define ss_aligned_free(ptr) ss_free(ptr)
 #endif
 
-int ss_is_ipv6addr(const char *addr);
-char *get_default_conf(void);
-uint16_t load16_be(const void *s);
+int ss_is_ipv6addr(const char* addr);
+char* get_default_conf(void);
+uint16_t load16_be(const void* s);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif // _UTILS_H

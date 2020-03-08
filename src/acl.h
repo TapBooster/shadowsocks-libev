@@ -23,18 +23,26 @@
 #ifndef _ACL_H
 #define _ACL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
 #define BLACK_LIST 0
 #define WHITE_LIST 1
 
-int init_acl(const char *path);
+int init_acl(const char* path);
 void free_acl(void);
 
-int acl_match_host(const char *ip);
-int acl_add_ip(const char *ip);
-int acl_remove_ip(const char *ip);
+int acl_match_host(const char* ip);
+int acl_add_ip(const char* ip);
+int acl_remove_ip(const char* ip);
 
 int get_acl_mode(void);
 
-int outbound_block_match_host(const char *host);
+int outbound_block_match_host(const char* host);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif // _ACL_H

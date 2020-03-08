@@ -22,6 +22,10 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
 #ifndef SOL_TCP
 #define SOL_TCP IPPROTO_TCP
 #endif
@@ -32,14 +36,14 @@
 
 #include "crypto.h"
 
-int init_udprelay(const char *server_host, const char *server_port,
+int init_udprelay(const char* server_host, const char* server_port,
 #ifdef MODULE_LOCAL
-                  const struct sockaddr *remote_addr, const int remote_addr_len,
+    const struct sockaddr* remote_addr, const int remote_addr_len,
 #ifdef MODULE_TUNNEL
-                  const ss_addr_t tunnel_addr,
+    const ss_addr_t tunnel_addr,
 #endif
 #endif
-                  int mtu, crypto_t *crypto, int timeout, const char *iface);
+    int mtu, crypto_t* crypto, int timeout, const char* iface);
 
 void free_udprelay(void);
 
@@ -48,16 +52,17 @@ int protect_socket(int fd);
 int send_traffic_stat(uint64_t tx, uint64_t rx);
 #endif
 
-#define STAGE_ERROR     -1  /* Error detected                   */
-#define STAGE_INIT       0  /* Initial stage                    */
-#define STAGE_HANDSHAKE  1  /* Handshake with client            */
-#define STAGE_SNI        3  /* Parse HTTP/SNI header            */
-#define STAGE_RESOLVE    4  /* Resolve the hostname             */
-#define STAGE_STREAM     5  /* Stream between client and server */
-#define STAGE_STOP       6  /* Server stop to response          */
+#define STAGE_ERROR -1    /* Error detected                   */
+#define STAGE_INIT 0      /* Initial stage                    */
+#define STAGE_HANDSHAKE 1 /* Handshake with client            */
+#define STAGE_SNI 3       /* Parse HTTP/SNI header            */
+#define STAGE_RESOLVE 4   /* Resolve the hostname             */
+#define STAGE_STREAM 5    /* Stream between client and server */
+#define STAGE_STOP 6      /* Server stop to response          */
 
 /* Vals for long options */
-enum {
+enum
+{
     GETOPT_VAL_HELP = 257,
     GETOPT_VAL_REUSE_PORT,
     GETOPT_VAL_FAST_OPEN,
@@ -73,5 +78,9 @@ enum {
     GETOPT_VAL_EXECUTABLE,
     GETOPT_VAL_WORKDIR,
 };
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif // _COMMON_H
