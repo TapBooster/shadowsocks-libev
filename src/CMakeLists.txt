@@ -72,6 +72,17 @@ set(SS_SERVER_SOURCE
     ${SS_ACL_SOURCE}
     )
 
+set(LIB_SS_SOURCE
+    ${SS_SHARED_SOURCES}
+    udprelay.c
+    cache.c
+    resolv.c
+    ${SS_CRYPTO_SOURCE}
+    ${SS_PLUGIN_SOURCE}
+    ${SS_SNI_SOURCE}
+    ${SS_ACL_SOURCE}
+    )
+
 set(SS_MANAGER_SOURCE
     ${SS_SHARED_SOURCES}
     manager.c
@@ -174,7 +185,7 @@ if (WITH_STATIC)
         add_executable(ss-redir EXCLUDE_FROM_ALL ${SS_REDIR_SOURCE})
     endif ()
     add_library(shadowsocks-libev STATIC ${LIBSHADOWSOCKS_LIBEV_SOURCE})
-
+    add_library(ss STATIC ${LIB_SS_SOURCE})
 
     target_compile_definitions(ss-server PUBLIC -DMODULE_REMOTE)
     target_compile_definitions(ss-tunnel PUBLIC -DMODULE_TUNNEL)
@@ -182,6 +193,7 @@ if (WITH_STATIC)
     target_compile_definitions(ss-local PUBLIC -DMODULE_LOCAL)
     target_compile_definitions(ss-redir PUBLIC -DMODULE_REDIR)
     target_compile_definitions(shadowsocks-libev PUBLIC -DMODULE_LOCAL -DLIB_ONLY)
+    target_compile_definitions(ss PUBLIC -DMODULE_REMOTE)
 
     target_link_libraries(ss-server cork ipset ${DEPS})
     target_link_libraries(ss-tunnel cork ${DEPS})
@@ -189,6 +201,7 @@ if (WITH_STATIC)
     target_link_libraries(ss-local cork ipset ${DEPS})
     target_link_libraries(ss-redir cork ipset ${DEPS})
     target_link_libraries(shadowsocks-libev cork ipset ${DEPS})
+    target_link_libraries(ss cork ipset ${DEPS})
 else ()
 
     # ------------------------------------------------------------------
@@ -206,6 +219,7 @@ else ()
         add_executable(ss-redir-shared EXCLUDE_FROM_ALL ${SS_REDIR_SOURCE})
     endif ()
     add_library(shadowsocks-libev-shared SHARED ${LIBSHADOWSOCKS_LIBEV_SOURCE})
+    add_library(ss-shared SHARED ${LIB_SS_SOURCE})
 
     target_compile_definitions(ss-server-shared PUBLIC -DMODULE_REMOTE)
     target_compile_definitions(ss-tunnel-shared PUBLIC -DMODULE_TUNNEL)
@@ -213,6 +227,7 @@ else ()
     target_compile_definitions(ss-local-shared PUBLIC -DMODULE_LOCAL)
     target_compile_definitions(ss-redir-shared PUBLIC -DMODULE_REDIR)
     target_compile_definitions(shadowsocks-libev-shared PUBLIC -DMODULE_LOCAL)
+    target_compile_definitions(ss-shared PUBLIC -DMODULE_REMOTE)
 
     target_link_libraries(ss-server-shared ${DEPS_SHARED})
     target_link_libraries(ss-tunnel-shared ${DEPS_SHARED})
@@ -220,21 +235,20 @@ else ()
     target_link_libraries(ss-local-shared ${DEPS_SHARED})
     target_link_libraries(ss-redir-shared ${DEPS_SHARED})
     target_link_libraries(shadowsocks-libev-shared ${DEPS_SHARED})
+    target_link_libraries(ss-shared ${DEPS_SHARED})
 
     set_target_properties(ss-server-shared PROPERTIES OUTPUT_NAME ss-server)
     set_target_properties(ss-tunnel-shared PROPERTIES OUTPUT_NAME ss-tunnel)
     set_target_properties(ss-manager-shared PROPERTIES OUTPUT_NAME ss-manager)
     set_target_properties(ss-local-shared PROPERTIES OUTPUT_NAME ss-local)
     set_target_properties(ss-redir-shared PROPERTIES OUTPUT_NAME ss-redir)
+    set_target_properties(shadowsocks-libev-shared PROPERTIES OUTPUT_NAME shadowsocks-libev)
+    set_target_properties(ss-shared PROPERTIES OUTPUT_NAME ss)
 
-    set_target_properties(ss-server-shared ss-tunnel-shared ss-manager-shared ss-local-shared ss-redir-shared
+    set_target_properties(ss-server-shared ss-tunnel-shared ss-manager-shared ss-local-shared ss-redir-shared ss-shared
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${RUNTIME_SHARED_OUTPUT_DIRECTORY}
         )
-
-    set_target_properties(shadowsocks-libev-shared PROPERTIES OUTPUT_NAME shadowsocks-libev)
-    target_compile_definitions(shadowsocks-libev-shared PUBLIC -DMODULE_LOCAL)
-    target_link_libraries(shadowsocks-libev-shared ${DEPS_SHARED})
 endif()
 
 # ------------------------------------------------------------------
@@ -245,11 +259,11 @@ install(DIRECTORY ${RUNTIME_SHARED_OUTPUT_DIRECTORY}/
     DESTINATION bin)
 
 if (WITH_STATIC)
-    install(TARGETS shadowsocks-libev
+    install(TARGETS shadowsocks-libev ss
         ARCHIVE DESTINATION lib)
 else ()
 
-    install(TARGETS shadowsocks-libev-shared
+    install(TARGETS shadowsocks-libev-shared ss-shared
         LIBRARY DESTINATION lib)
 endif ()
 
