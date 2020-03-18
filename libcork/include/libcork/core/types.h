@@ -71,16 +71,9 @@
 #error "Cannot determine size of void *"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif //__cplusplus
-
 /* Return a pointer to a @c struct, given a pointer to one of its
  * fields. */
 #define cork_container_of(field, struct_type, field_name)                                                              \
-    ((struct_type*)(-offsetof(struct_type, field_name) + (struct_type*)((void*)(field))))
-#ifdef __cplusplus
-}
-#endif //__cplusplus
+    ((struct_type*)(-offsetof(struct_type, field_name) + (char*)(field)))
 
 #endif /* LIBCORK_CORE_TYPES_H */
